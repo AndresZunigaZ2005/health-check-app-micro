@@ -1,14 +1,13 @@
-# builder
-FROM golang:1.21-alpine AS builder
+# Etapa de build
+FROM golang:1.22-alpine AS builder
 WORKDIR /app
-COPY go.mod go.sum ./
-RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -o /monitor ./cmd/monitor
+RUN go mod tidy
+RUN go build -o health-check-app ./cmd/main.go
 
-# final
+# Etapa final
 FROM alpine:3.19
-RUN apk add --no-cache ca-certificates
-COPY --from=builder /monitor /monitor
+WORKDIR /root/
+COPY --from=builder /app/health-check-app .
 EXPOSE 8080
-ENTRYPOINT ["/monitor"]
+CMD ["./health-check-app"]

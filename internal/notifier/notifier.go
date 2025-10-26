@@ -1,15 +1,12 @@
 package notifier
 
-import "log"
+import (
+	"fmt"
+	"health-check-app-micro/internal/models"
+)
 
-type Notifier struct{}
-
-func New() *Notifier { return &Notifier{} }
-
-func (n *Notifier) Notify(recipients []string, subject, body string) {
-	if len(recipients) == 0 {
-		return
+func Notify(service *models.Microservice) {
+	for _, email := range service.Emails {
+		fmt.Printf("📧 Enviando notificación a %s: servicio %s está %s\n", email, service.Name, service.Status)
 	}
-	// por ahora solo log
-	log.Printf("[NOTIFY] to=%v subject=%s body=%s", recipients, subject, body)
 }
