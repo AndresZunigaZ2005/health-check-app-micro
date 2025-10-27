@@ -5,7 +5,6 @@ import (
 	"health-check-app-micro/internal/checker"
 	"health-check-app-micro/internal/store"
 	"health-check-app-micro/pkg/utils"
-	"time"
 )
 
 func main() {
@@ -13,7 +12,7 @@ func main() {
 	utils.LogInfo("🚀 Iniciando microservicio health-check-app-micro...")
 
 	storage := store.NewStore()
-	go checker.StartHealthCheckLoop(storage, 30*time.Second) // cada 30 segundos
+	go checker.StartHealthCheckLoop(storage) // inicia verificaciones periódicas individuales
 
 	router := api.SetupRouter(storage)
 	utils.LogInfo("🌐 Servidor iniciado en el puerto 8080")

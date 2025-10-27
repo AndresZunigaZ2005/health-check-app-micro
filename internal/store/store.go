@@ -33,3 +33,12 @@ func (s *Store) Get(name string) *models.Microservice {
 	defer s.mu.Unlock()
 	return s.Microservices[name]
 }
+
+func (s *Store) UpdateService(name string, status string, lastCheck string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if service, exists := s.Microservices[name]; exists {
+		service.Status = status
+		service.LastCheck = lastCheck
+	}
+}
