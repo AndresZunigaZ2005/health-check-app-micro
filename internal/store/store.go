@@ -20,7 +20,13 @@ type Store struct {
 func NewStore() *Store {
 	wd, _ := os.Getwd()
 	path := filepath.Join(wd, defaultStoreFile)
+	return NewStoreWithPath(path)
+}
 
+// NewStoreWithPath crea un Store que persiste en la ruta indicada.
+// Esto es útil para tests que quieran aislar el almacenamiento en un
+// archivo temporal y evitar escribir en el directorio de trabajo del repo.
+func NewStoreWithPath(path string) *Store {
 	s := &Store{
 		Microservices: make(map[string]*models.Microservice),
 		filePath:      path,
