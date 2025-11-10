@@ -1,0 +1,26 @@
+# .gitignore
+
+# Archivos binarios de Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Archivos de dependencias y compilación
+/vendor/
+/bin/
+/build/
+
+# Configuración local
+.env
+services.json
+
+# Archivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
