@@ -49,7 +49,7 @@ func TestAPI_HealthAll_Success(t *testing.T) {
 		t.Fatalf("expected 200 OK, got %d", w.Code)
 	}
 
-	var services []models.Microservice
+	var services map[string]*models.Microservice
 	if err := json.Unmarshal(w.Body.Bytes(), &services); err != nil {
 		t.Fatalf("failed to unmarshal response: %v", err)
 	}
@@ -243,7 +243,7 @@ func TestAPI_HealthAll_EmptyList(t *testing.T) {
 		t.Fatalf("expected 200 OK, got %d", w.Code)
 	}
 
-	var services []models.Microservice
+	var services map[string]*models.Microservice
 	if err := json.Unmarshal(w.Body.Bytes(), &services); err != nil {
 		t.Fatalf("failed to unmarshal response: %v", err)
 	}
