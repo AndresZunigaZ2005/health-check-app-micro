@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"health-check-app-micro/internal/api"
+	"health-check-app-micro/internal/checker"
 	"health-check-app-micro/internal/models"
 	"health-check-app-micro/internal/store"
 )
