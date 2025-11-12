@@ -3,8 +3,10 @@ package main
 import (
 	"health-check-app-micro/internal/api"
 	"health-check-app-micro/internal/checker"
+	"health-check-app-micro/internal/registry"
 	"health-check-app-micro/internal/store"
 	"health-check-app-micro/pkg/utils"
+	"os"
 
 	"github.com/joho/godotenv"
 )
@@ -19,6 +21,13 @@ func main() {
 	}
 
 	storage := store.NewStore()
+	
+	// Registrar servicios automáticamente
+	configPath := os.Getenv("SERVICES_CONFIG_PATH")
+	if err := registry.AutoRegisterServices(storage, configPath); err != nil {
+		utils.LogError("❌ Error en registro automático: " + err.Error())
+	}
+	
 	go checker.StartHealthCheckLoop(storage) // inicia verificaciones periódicas individuales
 
 	router := api.SetupRouter(storage)

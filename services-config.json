@@ -1,0 +1,33 @@
+[
+  {
+    "name": "api-gateway",
+    "endpoint": "http://api-gateway:8085/actuator/health",
+    "frequency": 30,
+    "emails": []
+  },
+  {
+    "name": "gestion-perfil",
+    "endpoint": "http://gestion-perfil:8084/actuator/health",
+    "frequency": 30,
+    "emails": []
+  },
+  {
+    "name": "jwt-service",
+    "endpoint": "http://jwt-service:8081/v1/health",
+    "frequency": 30,
+    "emails": []
+  },
+  {
+    "name": "notifications-service",
+    "endpoint": "http://notifications-service-micro:8080/health",
+    "frequency": 30,
+    "emails": []
+  },
+  {
+    "name": "orquestador-solicitudes",
+    "endpoint": "http://orquestador-solicitudes-micro:3001/health",
+    "frequency": 30,
+    "emails": []
+  }
+]
+
