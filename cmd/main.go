@@ -21,16 +21,16 @@ func main() {
 	}
 
 	storage := store.NewStore()
-	
+
 	// Registrar servicios automáticamente
 	configPath := os.Getenv("SERVICES_CONFIG_PATH")
 	if err := registry.AutoRegisterServices(storage, configPath); err != nil {
 		utils.LogError("❌ Error en registro automático: " + err.Error())
 	}
-	
+
 	go checker.StartHealthCheckLoop(storage) // inicia verificaciones periódicas individuales
 
 	router := api.SetupRouter(storage)
 	utils.LogInfo("🌐 Servidor iniciado en el puerto 8080")
-	router.Run(":8080")
+	router.Run(":8082")
 }
