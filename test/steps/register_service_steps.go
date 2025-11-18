@@ -17,9 +17,9 @@ type RegisterState struct {
 	Frequency int
 	Email     string
 
-	res  *http.Response
-	err  error
-	body []byte
+	Res  *http.Response
+	Err  error
+	Body []byte
 }
 
 func (s *RegisterState) TengoMicroservicio(name string) error {
@@ -57,11 +57,11 @@ func (s *RegisterState) HagoPOSTA(path string) error {
 	b, _ := json.Marshal(data)
 	resp, err := http.Post("http://localhost:8082"+path, "application/json", bytes.NewBuffer(b))
 
-	s.res = resp
-	s.err = err
+	s.Res = resp
+	s.Err = err
 
 	if resp != nil {
-		s.body, _ = io.ReadAll(resp.Body)
+		s.Body, _ = io.ReadAll(resp.Body)
 		resp.Body.Close()
 	}
 
@@ -69,21 +69,21 @@ func (s *RegisterState) HagoPOSTA(path string) error {
 }
 
 func (s *RegisterState) ResponseCodeShouldBe(expected int) error {
-	if s.err != nil {
-		return fmt.Errorf("error en la petición: %v", s.err)
+	if s.Err != nil {
+		return fmt.Errorf("error en la petición: %v", s.Err)
 	}
-	if s.res == nil {
+	if s.Res == nil {
 		return fmt.Errorf("respuesta HTTP nula")
 	}
-	if s.res.StatusCode != expected {
-		return fmt.Errorf("status esperado %d, recibido %d", expected, s.res.StatusCode)
+	if s.Res.StatusCode != expected {
+		return fmt.Errorf("status esperado %d, recibido %d", expected, s.Res.StatusCode)
 	}
 	return nil
 }
 
 func (s *RegisterState) BodyShouldContain(text string) error {
-	if !assert.Contains(nil, string(s.body), text) {
-		return fmt.Errorf("expected body to contain '%s', got '%s'", text, string(s.body))
+	if !assert.Contains(nil, string(s.Body), text) {
+		return fmt.Errorf("expected body to contain '%s', got '%s'", text, string(s.Body))
 	}
 	return nil
 }

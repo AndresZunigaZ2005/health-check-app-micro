@@ -10,9 +10,9 @@ import (
 
 type HealthOneState struct {
 	Service string
-	res     *http.Response
-	err     error
-	body    []byte
+	Res     *http.Response
+	Err     error
+	Body    []byte
 }
 
 func (s *HealthOneState) ExisteMicroservicio(name string) error {
@@ -36,21 +36,47 @@ func (s *HealthOneState) ExisteMicroservicio(name string) error {
 }
 
 func (s *HealthOneState) HagoGETOne(path string) error {
-	resp, err := http.Get("http://localhost:8082" + path)
-	s.res = resp
-	s.err = err
+	url := "http://localhost:8082" + path
+	resp, err := http.Get(url)
+	s.Res = resp
+	s.Err = err
+
+	if err != nil {
+		return fmt.Errorf("error al hacer GET a %s: %v", url, err)
+	}
 
 	if resp != nil {
-		s.body, _ = io.ReadAll(resp.Body)
+		s.Body, _ = io.ReadAll(resp.Body)
 		resp.Body.Close()
+	} else {
+		return fmt.Errorf("respuesta HTTP nula para %s", url)
 	}
 
 	return nil
 }
 
 func (s *HealthOneState) BodyContainsName(name string) error {
-	if !strings.Contains(string(s.body), name) {
-		return fmt.Errorf("la respuesta no contiene '%s': %s", name, string(s.body))
+	if s.Err != nil {
+		return fmt.Errorf("error en la petición: %v", s.Err)
+	}
+	if s.Res == nil {
+		return fmt.Errorf("respuesta HTTP nula")
+	}
+	if !strings.Contains(string(s.Body), name) {
+		return fmt.Errorf("la respuesta no contiene '%s': %s", name, string(s.Body))
+	}
+	return nil
+}
+
+func (s *HealthOneState) ResponseCodeShouldBe(expected int) error {
+	if s.Err != nil {
+		return fmt.Errorf("error en la petición: %v", s.Err)
+	}
+	if s.Res == nil {
+		return fmt.Errorf("respuesta HTTP nula")
+	}
+	if s.Res.StatusCode != expected {
+		return fmt.Errorf("status esperado %d, recibido %d", expected, s.Res.StatusCode)
 	}
 	return nil
 }

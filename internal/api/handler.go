@@ -56,7 +56,13 @@ func RegisterHandler(storage *store.Store) gin.HandlerFunc {
 
 func HealthAllHandler(storage *store.Store) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.JSON(http.StatusOK, storage.GetAll())
+		allServices := storage.GetAll()
+		// Convertir mapa a lista para que sea un array JSON
+		list := make([]*models.Microservice, 0, len(allServices))
+		for _, service := range allServices {
+			list = append(list, service)
+		}
+		c.JSON(http.StatusOK, list)
 	}
 }
 
