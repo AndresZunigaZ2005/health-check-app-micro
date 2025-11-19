@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"health-check-app-micro/internal/api"
 	"health-check-app-micro/internal/checker"
 	"health-check-app-micro/internal/registry"
@@ -28,9 +29,16 @@ func main() {
 		utils.LogError("❌ Error en registro automático: " + err.Error())
 	}
 
+	// Corregir emails vacíos desde el archivo de configuración
+	registry.FixEmptyEmails(storage, configPath)
+
 	go checker.StartHealthCheckLoop(storage) // inicia verificaciones periódicas individuales
 
 	router := api.SetupRouter(storage)
-	utils.LogInfo("🌐 Servidor iniciado en el puerto 8080")
-	router.Run(":8082")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	utils.LogInfo(fmt.Sprintf("🌐 Servidor iniciado en el puerto %s", port))
+	router.Run(":" + port)
 }

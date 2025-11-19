@@ -3,31 +3,40 @@
     "name": "api-gateway",
     "endpoint": "http://api-gateway:8085/actuator/health",
     "frequency": 30,
-    "emails": []
+    "emails": [
+      "miraortega2020@gmail.com"
+    ]
   },
   {
     "name": "gestion-perfil",
-    "endpoint": "http://gestion-perfil:8084/actuator/health",
+    "endpoint": "http://gestion-perfil-service:8080/actuator/health",
     "frequency": 30,
-    "emails": []
+    "emails": [
+      "miraortega2020@gmail.com"
+    ]
   },
   {
     "name": "jwt-service",
-    "endpoint": "http://jwt-service:8081/v1/health",
+    "endpoint": "http://jwtmanual-taller1-micro:8080/v1/health",
     "frequency": 30,
-    "emails": []
+    "emails": [
+      "miraortega2020@gmail.com"
+    ]
   },
   {
     "name": "notifications-service",
     "endpoint": "http://notifications-service-micro:8080/health",
     "frequency": 30,
-    "emails": []
+    "emails": [
+      "miraortega2020@gmail.com"
+    ]
   },
   {
     "name": "orquestador-solicitudes",
-    "endpoint": "http://orquestador-solicitudes-micro:3001/health",
+    "endpoint": "http://orquestador-solicitudes-micro:3000/health",
     "frequency": 30,
-    "emails": []
+    "emails": [
+      "miraortega2020@gmail.com"
+    ]
   }
 ]
-

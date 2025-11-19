@@ -62,8 +62,22 @@ func (s *Store) UpdateService(name string, status string, lastCheck string) {
 	if service, exists := s.Microservices[name]; exists {
 		service.Status = status
 		service.LastCheck = lastCheck
+		// No modificar otros campos como Emails, Endpoint, Frequency
 		// persist change
 		_ = s.persistLocked()
+	}
+}
+
+// UpdateServiceEmails actualiza los emails de un servicio si están vacíos
+func (s *Store) UpdateServiceEmails(name string, emails []string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if service, exists := s.Microservices[name]; exists {
+		// Solo actualizar si los emails actuales están vacíos o son inválidos
+		if len(service.Emails) == 0 || (len(service.Emails) == 1 && service.Emails[0] == "") {
+			service.Emails = emails
+			_ = s.persistLocked()
+		}
 	}
 }
 

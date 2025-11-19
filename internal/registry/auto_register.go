@@ -2,6 +2,7 @@ package registry
 
 import (
 	"encoding/json"
+	"fmt"
 	"health-check-app-micro/internal/checker"
 	"health-check-app-micro/internal/models"
 	"health-check-app-micro/internal/store"
@@ -20,18 +21,46 @@ type ServiceConfig struct {
 
 // AutoRegisterServices registra automáticamente los servicios definidos en el archivo de configuración
 func AutoRegisterServices(storage *store.Store, configPath string) error {
-	// Si no hay archivo de configuración, usar servicios por defecto
-	if configPath == "" {
-		configPath = "services-config.json"
+	// Intentar encontrar el archivo de configuración
+	foundPath := ""
+
+	// Si se proporciona una ruta específica, verificar si existe
+	if configPath != "" {
+		if _, err := os.Stat(configPath); err == nil {
+			foundPath = configPath
+		}
 	}
 
-	// Intentar leer el archivo de configuración
-	configData, err := os.ReadFile(configPath)
-	if err != nil {
-		// Si no existe el archivo, usar configuración por defecto
+	// Si no se encontró, intentar rutas por defecto
+	if foundPath == "" {
+		// Intentar primero en el directorio de trabajo actual
+		testPath := "services-config.json"
+		if _, err := os.Stat(testPath); err == nil {
+			foundPath = testPath
+		} else {
+			// Si no existe, intentar en /app (donde se monta en Docker)
+			testPath = "/app/services-config.json"
+			if _, err2 := os.Stat(testPath); err2 == nil {
+				foundPath = testPath
+			}
+		}
+	}
+
+	// Si no se encontró ningún archivo, usar servicios por defecto
+	if foundPath == "" {
 		utils.LogInfo("⚠️ No se encontró archivo de configuración, usando servicios por defecto")
 		return registerDefaultServices(storage)
 	}
+
+	// Intentar leer el archivo de configuración
+	configData, err := os.ReadFile(foundPath)
+	if err != nil {
+		// Si no se puede leer el archivo, usar configuración por defecto
+		utils.LogInfo(fmt.Sprintf("⚠️ No se pudo leer el archivo de configuración en %s: %v, usando servicios por defecto", foundPath, err))
+		return registerDefaultServices(storage)
+	}
+
+	utils.LogInfo(fmt.Sprintf("📋 Cargando configuración desde: %s", foundPath))
 
 	var services []ServiceConfig
 	if err := json.Unmarshal(configData, &services); err != nil {
@@ -116,3 +145,66 @@ func registerDefaultServices(storage *store.Store) error {
 	return nil
 }
 
+// FixEmptyEmails corrige los emails vacíos de servicios ya registrados
+// leyendo desde el archivo de configuración
+func FixEmptyEmails(storage *store.Store, configPath string) {
+	// Intentar encontrar el archivo de configuración
+	foundPath := ""
+
+	// Si se proporciona una ruta específica, verificar si existe
+	if configPath != "" {
+		if _, err := os.Stat(configPath); err == nil {
+			foundPath = configPath
+		}
+	}
+
+	// Si no se encontró, intentar rutas por defecto
+	if foundPath == "" {
+		// Intentar primero en el directorio de trabajo actual
+		testPath := "services-config.json"
+		if _, err := os.Stat(testPath); err == nil {
+			foundPath = testPath
+		} else {
+			// Si no existe, intentar en /app (donde se monta en Docker)
+			testPath = "/app/services-config.json"
+			if _, err2 := os.Stat(testPath); err2 == nil {
+				foundPath = testPath
+			}
+		}
+	}
+
+	// Si no se encontró ningún archivo, salir
+	if foundPath == "" {
+		utils.LogInfo("⚠️ No se encontró archivo de configuración para corregir emails")
+		return
+	}
+
+	// Intentar leer el archivo de configuración
+	configData, err := os.ReadFile(foundPath)
+	if err != nil {
+		utils.LogInfo(fmt.Sprintf("⚠️ No se pudo leer el archivo de configuración en %s para corregir emails: %v", foundPath, err))
+		return
+	}
+
+	utils.LogInfo(fmt.Sprintf("📋 Corrigiendo emails desde: %s", foundPath))
+
+	var services []ServiceConfig
+	if err := json.Unmarshal(configData, &services); err != nil {
+		utils.LogError("❌ Error parseando archivo de configuración para corregir emails: " + err.Error())
+		return
+	}
+
+	// Corregir emails de cada servicio si están vacíos
+	for _, svcConfig := range services {
+		currentService := storage.Get(svcConfig.Name)
+		if currentService != nil {
+			// Verificar si los emails están vacíos o inválidos
+			if len(currentService.Emails) == 0 || (len(currentService.Emails) == 1 && currentService.Emails[0] == "") {
+				if len(svcConfig.Emails) > 0 && svcConfig.Emails[0] != "" {
+					storage.UpdateServiceEmails(svcConfig.Name, svcConfig.Emails)
+					utils.LogInfo(fmt.Sprintf("✅ Emails corregidos para servicio %s", svcConfig.Name))
+				}
+			}
+		}
+	}
+}
